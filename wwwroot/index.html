@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Monitoring Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="index.css" rel="stylesheet" />
+</head>
+<body>
+<h1>Server Monitoring Dashboard</h1>
+<div class="chart-container">
+    <div class="chart-box">
+        <canvas id="cpuUsageChart"></canvas>
+    </div>
+    <div class="chart-box">
+        <canvas id="memoryUsageChart"></canvas>
+    </div>
+</div>
+<div class="message-container">
+    <div class="connection-container">
+        <div class="connection-status" id="connectionStatus">
+            <img src="status.png" alt="Status" /> Connecting...
+        </div>
+    </div>
+    <div id="sendAnimation"></div> <!-- Add a container for the animation -->
+    <textarea id="messageLog" readonly></textarea>
+    <div class="message-input">
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <button id="sendMessage">Send</button>
+    </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

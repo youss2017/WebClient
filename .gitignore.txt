@@ -1,0 +1,7 @@
+cmake-build-debug/
+vendor/
+.idea/
+*.exe
+*.dll
+*.lib
+.vs/*
