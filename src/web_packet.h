@@ -8,6 +8,7 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <list>
 
 /*
  *    Opcode:  4 bits

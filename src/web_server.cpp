@@ -16,7 +16,8 @@ web_server::web_server(int port) {
     sw::Startup();
 
     m_server = sw::Socket(sw::SocketType::TCP);
-    m_server.Bind(sw::SocketInterface::Any, port)
+    m_server.SetReuseAddrOption(true)
+            .Bind(sw::SocketInterface::Any, port)
             .Listen(1024)
             .SetBlockingMode(false)
             .SetNagleAlgorthim(false);
@@ -127,7 +128,7 @@ std::string web_server::GetMimeCode(const string &extension, const string &fallb
         mime_mapping[".html"] = "text/html";
         mime_mapping[".txt"] = "text/plain";
         mime_mapping[".css"] = "text/css";
-        mime_mapping[".js"] = "text/script";
+        mime_mapping[".js"] = "text/javascript";
         mime_mapping[".ico"] = "image/x-icon";
         mime_mapping[".jpg"] = "image/jpeg";
         mime_mapping[".jpeg"] = "image/jpeg";
@@ -249,19 +250,16 @@ void web_server::HandleRequest(client_ctx &client, http_request &request) {
 
 std::string getCurrentDateTime() {
     // Get the current time
-    auto now = std::chrono::system_clock::now();
-
-    // Convert to a time_t which is a representation of time in seconds since epoch
-    std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+    std::time_t now_time_t = std::time(nullptr);
 
     // Convert to tm structure for local time
     std::tm local_tm = *std::localtime(&now_time_t);
 
-    // Create a stringstream to format the date and time
-    std::ostringstream oss;
-    oss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S");
+    // Create a char array to hold the formatted date and time
+    char buffer[80];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &local_tm);
 
-    return oss.str();
+    return std::string(buffer);
 }
 
 void web_server::HandleWebSocketRequest(client_ctx &client, span<uint8_t> data) {

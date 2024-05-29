@@ -4,14 +4,15 @@
 
 #include "sys_info.h"
 
+using namespace std;
+
+#ifdef _WIN32
 #include <windows.h>
 #include <pdh.h>
 #include <iostream>
 #include <sstream>
 
 #pragma comment(lib, "pdh.lib")
-
-using namespace std;
 
 double sys_info::GetCPUUsage(long wait_for_reading_ms) {
     PDH_HQUERY cpuQuery;
@@ -85,6 +86,61 @@ sys_info::sys_mem_info sys_info::GetMemoryUsage() {
         }
         return {};
 }
+#else
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <unistd.h>
+#include <sys/sysinfo.h>
+
+
+double sys_info::GetCPUUsage(long wait_for_reading_sec) {
+    double prevIdleTime = 0, prevTotalTime = 0;
+    usleep(wait_for_reading_sec * 1000000); // Sleep for wait_for_reading_sec seconds
+
+    std::ifstream statFile("/proc/stat");
+    if (!statFile.is_open()) {
+        std::cerr << "Failed to open /proc/stat" << std::endl;
+        return -1.0;
+    }
+
+    std::string line;
+    std::getline(statFile, line);
+    std::istringstream iss(line);
+
+    std::string cpuLabel;
+    long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+    iss >> cpuLabel >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice;
+
+    long idleTime = idle + iowait;
+    long totalTime = user + nice + system + idle + iowait + irq + softirq + steal;
+
+    double idleTimeDelta = idleTime - prevIdleTime;
+    double totalTimeDelta = totalTime - prevTotalTime;
+
+    double cpuUsage = ((totalTimeDelta - idleTimeDelta) / totalTimeDelta) * 100.0;
+
+    prevIdleTime = idleTime;
+    prevTotalTime = totalTime;
+
+    return cpuUsage;
+}
+
+sys_info::sys_mem_info sys_info::GetMemoryUsage() {
+    struct sysinfo memInfo;
+    sysinfo(&memInfo);
+
+    double totalPhysMem = memInfo.totalram;
+    double physMemUsed = memInfo.totalram - memInfo.freeram;
+
+    // Convert from bytes to megabytes
+    totalPhysMem /= (1024 * 1024);
+    physMemUsed /= (1024 * 1024);
+
+    return {totalPhysMem, physMemUsed};
+}
+
+#endif
 
 std::string sys_info::GetAsJSON(long wait_for_reading_ms) {
     stringstream str;

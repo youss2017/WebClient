@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.00)
 
 project(WebClient VERSION 1.0)
 
@@ -9,6 +9,11 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 include_directories(
         vendor/Utility/
 )
+
+if (WIN32)
+else()
+add_link_options(-pthread)
+endif()
 
 add_executable(WebClient ${SOURCES}
         src/vendor.cpp

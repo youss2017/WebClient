@@ -3,7 +3,7 @@ let reconnectInterval = 2000; // 2 seconds
 let totalPhysicalMemory = 1; // Initialize with a default value
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://localhost:80/Stats');
+    socket = new WebSocket('ws://192.168.1.242:80/Stats');
 
     socket.onopen = function() {
         console.log('WebSocket connection established.');

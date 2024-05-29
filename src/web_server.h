@@ -69,11 +69,11 @@ struct client_ctx {
     T& GetOrCreateUserData()
     {
         if(!m_user_defined_data) {
-            m_user_defined_data = std::make_shared<uint8_t[]>(sizeof(T));
+            m_user_defined_data = std::make_shared<std::vector<uint8_t>>(sizeof(T));
             (void) new(m_user_defined_data.get()) T();
 
             m_destroy_user_data_object = [&]() {
-                auto object = (T*)m_user_defined_data.get();
+                auto object = (T*)m_user_defined_data.get()->data();
                 object->~T();
             };
         }
@@ -92,7 +92,8 @@ private:
     std::function<void()> m_copy_object = []() {};
     std::function<void()> m_move_object = []() {};
     std::function<void()> m_assignment_object = []() {};
-    std::shared_ptr<uint8_t[]> m_user_defined_data = nullptr;
+    //std::shared_ptr<uint8_t[]> m_user_defined_data = nullptr;
+    std::shared_ptr<std::vector<uint8_t>> m_user_defined_data = nullptr;
 };
 
 class web_server {
